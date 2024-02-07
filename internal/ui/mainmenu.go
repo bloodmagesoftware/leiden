@@ -18,19 +18,22 @@ const (
 // MainMenu can be called in game loop to display the main menu
 func MainMenu() MainMenuItem {
 	item := MainMenuItem_None
-	r := rl.NewRectangle(float32(rl.GetScreenWidth())/2-100, float32(rl.GetScreenHeight())/2-50, 200, 100)
+	width := 50 * vmin
+	height := 10 * vmin
+	r := rl.NewRectangle(vw*50-width/2, vh*50-height/2, width, height)
+	raygui.SetFont(FontDefault)
 	if raygui.Button(r, "New Game") {
 		item = MainMenuItem_NewGame
 	}
-	r.Y += 100
+	r.Y += r.Height + vh
 	if raygui.Button(r, "Load Game") {
 		item = MainMenuItem_LoadGame
 	}
-	r.Y += 100
+	r.Y += r.Height + vh
 	if raygui.Button(r, "Options") {
 		item = MainMenuItem_Options
 	}
-	r.Y += 100
+	r.Y += r.Height + vh
 	if raygui.Button(r, "Quit") {
 		item = MainMenuItem_Quit
 	}

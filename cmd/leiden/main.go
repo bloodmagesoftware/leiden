@@ -13,7 +13,10 @@ func main() {
 	}
 	defer window.Close()
 
+	ui.Init()
+
 	for window.Open() {
+		ui.Update()
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.RayWhite)
 		log.Debug("MainMenu", "item", ui.MainMenu())
