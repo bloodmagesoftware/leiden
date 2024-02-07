@@ -1,6 +1,6 @@
 module github.com/bloodmagesoftware/leiden
 
-go 1.21
+go 1.22
 
 require (
 	github.com/charmbracelet/log v0.3.1
