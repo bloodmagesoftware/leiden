@@ -21,13 +21,17 @@ func Init() error {
 	if save.SettingsData.Fullscreen {
 		if save.SettingsData.Windowed {
 			windowFlags |= rl.FlagWindowMaximized
+			windowFlags |= rl.FlagBorderlessWindowedMode
+			windowFlags |= rl.FlagWindowUndecorated
 		} else {
 			windowFlags |= rl.FlagFullscreenMode
 		}
-	}
-	if save.SettingsData.Windowed {
-		windowFlags |= rl.FlagWindowUndecorated
-		windowFlags |= rl.FlagBorderlessWindowedMode
+	} else {
+		if save.SettingsData.Windowed {
+			windowFlags |= rl.FlagWindowResizable
+		} else {
+			windowFlags |= rl.FlagWindowUndecorated
+		}
 	}
 	if save.SettingsData.AntiAliasing {
 		windowFlags |= rl.FlagMsaa4xHint

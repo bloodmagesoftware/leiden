@@ -9,5 +9,5 @@ var (
 )
 
 func Init() {
-	FontDefault = rl.LoadFontEx("resources/fonts/alagard.ttf", 64, nil)
+	FontDefault = rl.LoadFontEx("resources/fonts/alagard.ttf", 128, nil)
 }

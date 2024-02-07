@@ -29,12 +29,12 @@ type Settings struct {
 
 func defaultSettings() *Settings {
 	return &Settings{
-		Width:        800,
-		Height:       450,
+		Width:        720,
+		Height:       480,
 		VSynch:       true,
 		Fullscreen:   false,
 		Windowed:     true,
-		AntiAliasing: false,
+		AntiAliasing: true,
 		MasterVolume: 1.0,
 		MusicVolume:  1.0,
 		SFXVolume:    1.0,
