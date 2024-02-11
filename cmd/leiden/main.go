@@ -15,6 +15,7 @@ func main() {
 	ui.Init()
 
 	ui.RaylibIntro()
+	ui.BloodmageIntro()
 
 game_loop:
 	for window.Open() {

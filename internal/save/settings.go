@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/pkg/errors"
 )
 
@@ -29,8 +28,8 @@ type Settings struct {
 
 func defaultSettings() *Settings {
 	return &Settings{
-		Width:        int32(rl.GetMonitorWidth(0)),
-		Height:       int32(rl.GetMonitorHeight(0)),
+		Width:        0,
+		Height:       0,
 		VSynch:       true,
 		Fullscreen:   true,
 		Windowed:     false,
@@ -50,7 +49,24 @@ func settingsLocation() string {
 		settingsLoc = filepath.Join(xdgConfigHome, "leiden", "settings.json")
 		return settingsLoc
 	}
-	settingsLoc = filepath.Join(rl.HomeDir(), "leiden", "settings.json")
+	home, homeSet := os.LookupEnv("HOME")
+	if homeSet {
+		configDir := filepath.Join(home, ".config")
+		if _, err := os.Stat(configDir); err == nil {
+			settingsLoc = filepath.Join(configDir, "leiden", "settings.json")
+			return settingsLoc
+		}
+	}
+	if appdata, appdataSet := os.LookupEnv("APPDATA"); appdataSet {
+		settingsLoc = filepath.Join(appdata, "leiden", "settings.json")
+		return settingsLoc
+	}
+	if homeSet {
+		settingsLoc = filepath.Join(home, "leiden", "settings.json")
+		return settingsLoc
+	}
+
+	settingsLoc = "settings.json"
 	return settingsLoc
 }
 
@@ -87,7 +103,9 @@ func SaveSettings() error {
 		return errors.Wrap(err, "failed to create settings file")
 	}
 	defer file.Close()
-	if err := json.NewEncoder(file).Encode(SettingsData); err != nil {
+	enc := json.NewEncoder(file)
+	enc.SetIndent("", "    ")
+	if err := enc.Encode(SettingsData); err != nil {
 		return errors.Wrap(err, "failed to encode settings file")
 	}
 	return nil

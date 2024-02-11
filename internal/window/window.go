@@ -1,6 +1,8 @@
 package window
 
 import (
+	"fmt"
+
 	"github.com/bloodmagesoftware/leiden/internal/save"
 	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/pkg/errors"
@@ -10,11 +12,15 @@ func Init() error {
 	if err := save.LoadSettings(); err != nil {
 		return errors.Wrap(err, "failed to load settings")
 	}
-	rl.InitWindow(save.SettingsData.Width, save.SettingsData.Height, "Leid")
 	rl.SetTargetFPS(120)
 	rl.SetExitKey(0)
+	rl.InitWindow(save.SettingsData.Width, save.SettingsData.Height, "Leid")
 
 	windowFlags := uint32(0)
+	if save.SettingsData.AntiAliasing {
+		windowFlags |= rl.FlagMsaa4xHint
+		rl.SetConfigFlags(rl.FlagMsaa4xHint)
+	}
 	if save.SettingsData.VSynch {
 		windowFlags |= rl.FlagVsyncHint
 	}
@@ -34,12 +40,15 @@ func Init() error {
 			windowFlags |= rl.FlagWindowUndecorated
 		}
 	}
-	if save.SettingsData.AntiAliasing {
-		windowFlags |= rl.FlagMsaa4xHint
-	}
 	rl.SetWindowState(windowFlags)
 
 	rl.SetMasterVolume(save.SettingsData.MasterVolume)
+
+	if save.SettingsData.Width == 0 || save.SettingsData.Height == 0 {
+		save.SettingsData.Width = int32(rl.GetScreenWidth())
+		save.SettingsData.Height = int32(rl.GetScreenHeight())
+	}
+	fmt.Printf("Width: %d, Height: %d\n", save.SettingsData.Width, save.SettingsData.Height)
 
 	return nil
 }
