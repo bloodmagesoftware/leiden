@@ -20,7 +20,7 @@ func MainMenu() MainMenuItem {
 	raygui.SetFont(FontDefault)
 
 	tetleSize := rl.MeasureTextEx(FontDefault, "Leiden", 8*vmin, 1)
-	titleR := rl.NewRectangle(vw*50-tetleSize.X/2, vh*10-tetleSize.Y/2, tetleSize.X, tetleSize.Y)
+	titleR := rl.NewRectangle(vw*50-tetleSize.X/2, vh*20-tetleSize.Y/2, tetleSize.X, tetleSize.Y)
 	rl.DrawTextEx(FontDefault, "Leiden", rl.Vector2{X: titleR.X, Y: titleR.Y}, 8*vmin, 1, rl.White)
 
 	item := MainMenuItem_None
