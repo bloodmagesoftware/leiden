@@ -14,6 +14,8 @@ func main() {
 
 	ui.Init()
 
+	ui.RaylibIntro()
+
 game_loop:
 	for window.Open() {
 		ui.Update()

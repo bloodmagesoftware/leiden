@@ -25,6 +25,7 @@ func Init() error {
 			windowFlags |= rl.FlagWindowUndecorated
 		} else {
 			windowFlags |= rl.FlagFullscreenMode
+			rl.SetWindowMonitor(0)
 		}
 	} else {
 		if save.SettingsData.Windowed {

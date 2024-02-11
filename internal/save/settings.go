@@ -29,11 +29,11 @@ type Settings struct {
 
 func defaultSettings() *Settings {
 	return &Settings{
-		Width:        720,
-		Height:       480,
+		Width:        int32(rl.GetMonitorWidth(0)),
+		Height:       int32(rl.GetMonitorHeight(0)),
 		VSynch:       true,
-		Fullscreen:   false,
-		Windowed:     true,
+		Fullscreen:   true,
+		Windowed:     false,
 		AntiAliasing: true,
 		MasterVolume: 1.0,
 		MusicVolume:  1.0,
