@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/pkg/errors"
+	"errors"
 )
 
 var (
@@ -73,22 +73,22 @@ func settingsLocation() string {
 func LoadSettings() error {
 	settingsPath := settingsLocation()
 	if err := os.MkdirAll(filepath.Dir(settingsPath), 0755); err != nil {
-		return errors.Wrap(err, "failed to retrieve settings path")
+		return errors.Join(errors.New("failed to retrieve settings path"), err)
 	}
 	_, err := os.Stat(settingsPath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
 		}
-		return errors.Wrap(err, "failed to retrieve settings file")
+		return errors.Join(errors.New("failed to retrieve settings file"), err)
 	}
 	file, err := os.Open(settingsPath)
 	if err != nil {
-		return errors.Wrap(err, "failed to open settings file")
+		return errors.Join(errors.New("failed to open settings file"), err)
 	}
 	defer file.Close()
 	if err := json.NewDecoder(file).Decode(SettingsData); err != nil {
-		return errors.Wrap(err, "failed to decode settings file")
+		return errors.Join(errors.New("failed to decode settings file"), err)
 	}
 	return nil
 }
@@ -96,17 +96,17 @@ func LoadSettings() error {
 func SaveSettings() error {
 	settingsPath := settingsLocation()
 	if err := os.MkdirAll(filepath.Dir(settingsPath), 0755); err != nil {
-		return errors.Wrap(err, "failed to retrieve settings path")
+		return errors.Join(errors.New("failed to retrieve settings path"), err)
 	}
 	file, err := os.Create(settingsPath)
 	if err != nil {
-		return errors.Wrap(err, "failed to create settings file")
+		return errors.Join(errors.New("failed to create settings file"), err)
 	}
 	defer file.Close()
 	enc := json.NewEncoder(file)
 	enc.SetIndent("", "    ")
 	if err := enc.Encode(SettingsData); err != nil {
-		return errors.Wrap(err, "failed to encode settings file")
+		return errors.Join(errors.New("failed to encode settings file"), err)
 	}
 	return nil
 }

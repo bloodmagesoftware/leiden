@@ -1,16 +1,16 @@
 package window
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/bloodmagesoftware/leiden/internal/save"
 	rl "github.com/gen2brain/raylib-go/raylib"
-	"github.com/pkg/errors"
 )
 
 func Init() error {
 	if err := save.LoadSettings(); err != nil {
-		return errors.Wrap(err, "failed to load settings")
+		return errors.Join(errors.New("failed to load settings"), err)
 	}
 	rl.SetTargetFPS(120)
 	rl.SetExitKey(0)
