@@ -18,11 +18,10 @@ func BloodmageIntro() {
 		active.Store(false)
 	}()
 	bloodRed := rl.NewColor(196, 27, 26, 255)
-	black := rl.NewColor(1, 0, 4, 255)
 	for !rl.WindowShouldClose() && active.Load() {
 		updateUnits()
 		rl.BeginDrawing()
-		rl.ClearBackground(black)
+		rl.ClearBackground(rl.Black)
 		// draw centered with 1:1 aspect ratio
 		imgS := 50 * vmin
 		imgSrcRect := rl.Rectangle{X: 0, Y: 0, Width: float32(bms.Width), Height: float32(bms.Height)}

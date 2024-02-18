@@ -14,7 +14,7 @@ func Init() error {
 	}
 	rl.SetTargetFPS(120)
 	rl.SetExitKey(0)
-	rl.InitWindow(save.SettingsData.Width, save.SettingsData.Height, "Leid")
+	rl.InitWindow(save.SettingsData.Width, save.SettingsData.Height, "Leiden")
 
 	windowFlags := uint32(0)
 	if save.SettingsData.AntiAliasing {
