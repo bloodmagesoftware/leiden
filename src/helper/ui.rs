@@ -10,6 +10,7 @@
  * Unauthorized copying, modification, distribution, or use of this software, via any medium, is strictly prohibited.
  */
 use bevy::audio::PlaybackMode;
+use bevy::ecs::system::EntityCommands;
 use bevy::prelude::*;
 
 use crate::helper::settings::{AudioChannel, UserSettings};
@@ -27,31 +28,46 @@ impl ButtonIdentifier {
     }
 }
 
-pub fn text_button(parent: &mut ChildBuilder, content: impl Into<String>, id: i8) {
-    parent
-        .spawn((
-            ButtonBundle {
-                style: Style {
-                    width: Val::Auto,
-                    min_width: Val::Vw(20.0),
-                    height: Val::Auto,
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..default()
-                },
+#[inline]
+pub fn text_button<'a>(
+    parent: &'a mut ChildBuilder,
+    content: impl Into<String>,
+    id: i8,
+) -> EntityCommands<'a> {
+    text_button_of_size(parent, content, 24.0, id)
+}
+
+pub fn text_button_of_size<'a>(
+    parent: &'a mut ChildBuilder,
+    content: impl Into<String>,
+    font_size: f32,
+    id: i8,
+) -> EntityCommands<'a> {
+    let mut e = parent.spawn((
+        ButtonBundle {
+            style: Style {
+                width: Val::Auto,
+                min_width: Val::Vw(20.0),
+                height: Val::Auto,
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
                 ..default()
             },
-            ButtonIdentifier::new(id),
-        ))
-        .with_children(|parent| {
-            parent.spawn(TextBundle::from_section(
-                content,
-                TextStyle {
-                    font_size: 32.0,
-                    ..default()
-                },
-            ));
-        });
+            ..default()
+        },
+        ButtonIdentifier::new(id),
+    ));
+    e.with_children(|parent| {
+        parent.spawn(TextBundle::from_section(
+            content,
+            TextStyle {
+                font_size,
+                ..default()
+            },
+        ));
+    });
+
+    return e;
 }
 
 pub fn vertical_spacer(parent: &mut ChildBuilder, height: Val) {

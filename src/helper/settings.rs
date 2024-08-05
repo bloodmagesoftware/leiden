@@ -22,6 +22,7 @@ pub struct UserSettings {
     pub sfx_volume: f32,
     pub ui_volume: f32,
     pub master_volume: f32,
+    pub vibration: bool,
 }
 
 impl PartialEq for UserSettings {
@@ -30,6 +31,7 @@ impl PartialEq for UserSettings {
             && self.sfx_volume == other.sfx_volume
             && self.ui_volume == other.ui_volume
             && self.master_volume == other.master_volume
+            && self.vibration == other.vibration
     }
 }
 
@@ -51,6 +53,10 @@ impl Default for UserSettings {
             sfx_volume: 1.,
             ui_volume: 1.,
             master_volume: 0.5,
+            #[cfg(feature = "rumble")]
+            vibration: true,
+            #[cfg(not(feature = "rumble"))]
+            vibration: false,
         }
     }
 }

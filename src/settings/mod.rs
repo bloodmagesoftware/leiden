@@ -23,6 +23,10 @@ struct SettingsMarker;
 #[derive(Component)]
 struct VolumeSettingsMarker(AudioChannel);
 
+#[cfg(feature = "rumble")]
+#[derive(Component)]
+struct VibrationSettingsMarker;
+
 fn spawn_settings(
     mut commands: Commands,
     settings: Res<UserSettings>,
@@ -55,7 +59,7 @@ fn spawn_settings(
                 TextStyle {
                     font_size: 64.0,
                     font: asset_server.load("fonts/Ornatix.ttf"),
-                    color: Color::linear_rgba(0.8, 0.8, 0.8, 0.8),
+                    color: Color::WHITE,
                 },
             ));
 
@@ -63,7 +67,7 @@ fn spawn_settings(
 
             text_button(parent, "Back", 0);
 
-            vertical_spacer(parent, Val::VMin(4.0));
+            vertical_spacer(parent, Val::VMin(2.0));
 
             text_button(parent, "+", 1);
             parent.spawn((
@@ -78,7 +82,7 @@ fn spawn_settings(
             ));
             text_button(parent, "-", 2);
 
-            vertical_spacer(parent, Val::VMin(4.0));
+            vertical_spacer(parent, Val::VMin(2.0));
 
             text_button(parent, "+", 3);
             parent.spawn((
@@ -93,7 +97,7 @@ fn spawn_settings(
             ));
             text_button(parent, "-", 4);
 
-            vertical_spacer(parent, Val::VMin(4.0));
+            vertical_spacer(parent, Val::VMin(2.0));
 
             text_button(parent, "+", 5);
             parent.spawn((
@@ -108,7 +112,7 @@ fn spawn_settings(
             ));
             text_button(parent, "-", 6);
 
-            vertical_spacer(parent, Val::VMin(4.0));
+            vertical_spacer(parent, Val::VMin(2.0));
 
             text_button(parent, "+", 7);
             parent.spawn((
@@ -122,14 +126,29 @@ fn spawn_settings(
                 ),
             ));
             text_button(parent, "-", 8);
+
+            #[cfg(feature = "rumble")]
+            {
+                vertical_spacer(parent, Val::VMin(2.0));
+
+                text_button(
+                    parent,
+                    format!(
+                        "Gamepad Vibration: {}",
+                        if settings.vibration { "On" } else { "Off" }
+                    ),
+                    9,
+                )
+                .insert(VibrationSettingsMarker);
+            }
         });
 }
 
-fn update_settings(
-    mut master_volume_q: Query<(&VolumeSettingsMarker, &mut Text)>,
+fn update_volume_settings(
+    mut volume_q: Query<(&VolumeSettingsMarker, &mut Text)>,
     settings: Res<UserSettings>,
 ) {
-    for (marker, mut text) in master_volume_q.iter_mut() {
+    for (marker, mut text) in volume_q.iter_mut() {
         match marker.0 {
             AudioChannel::Master => {
                 text.sections[0].value =
@@ -149,6 +168,24 @@ fn update_settings(
     }
 }
 
+#[cfg(feature = "rumble")]
+fn update_vibration_settings(
+    vibration_button_q: Query<&Children, (With<Button>, With<VibrationSettingsMarker>)>,
+    mut vibration_text_q: Query<&mut Text, (Without<Button>, Without<VibrationSettingsMarker>)>,
+    settings: Res<UserSettings>,
+) {
+    for children in vibration_button_q.iter() {
+        for child in children.iter() {
+            for text in vibration_text_q.get_mut(*child).iter_mut() {
+                text.sections[0].value = format!(
+                    "Gamepad Vibration: {}",
+                    if settings.vibration { "On" } else { "Off" }
+                );
+            }
+        }
+    }
+}
+
 fn despawn_settings(mut commands: Commands, query: Query<Entity, With<SettingsMarker>>) {
     for entity in query.iter() {
         commands.entity(entity).despawn_recursive();
@@ -160,6 +197,10 @@ fn button(
     mut button_next_state: ResMut<NextState<ButtonFocusState>>,
     mut app_next_state: ResMut<NextState<AppState>>,
     mut settings: ResMut<UserSettings>,
+    #[cfg(feature = "rumble")] mut evw_rumble: EventWriter<
+        bevy::input::gamepad::GamepadRumbleRequest,
+    >,
+    #[cfg(feature = "rumble")] gamepads: Res<Gamepads>,
 ) {
     if let ButtonFocusState::Id(focus_id) = button_state.get() {
         match focus_id {
@@ -200,6 +241,20 @@ fn button(
                 // Ui Volume -
                 settings.ui_volume = (settings.ui_volume - 0.05).max(0.0);
             }
+            #[cfg(feature = "rumble")]
+            9 => {
+                // Vibration
+                settings.vibration = !settings.vibration;
+                if settings.vibration {
+                    for gamepad in gamepads.iter() {
+                        evw_rumble.send(bevy::input::gamepad::GamepadRumbleRequest::Add {
+                            gamepad,
+                            duration: std::time::Duration::from_millis(200),
+                            intensity: bevy::input::gamepad::GamepadRumbleIntensity::MAX,
+                        });
+                    }
+                }
+            }
             _ => {}
         }
     }
@@ -218,8 +273,16 @@ pub struct SettingsPlugin;
 impl Plugin for SettingsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(AppState::MainSettings), spawn_settings)
-            .add_systems(Update, update_settings)
-            .add_systems(OnExit(AppState::MainSettings), despawn_settings)
+            .add_systems(
+                Update,
+                update_volume_settings.run_if(in_state(AppState::MainSettings)),
+            );
+        #[cfg(feature = "rumble")]
+        app.add_systems(
+            Update,
+            update_vibration_settings.run_if(in_state(AppState::MainSettings)),
+        );
+        app.add_systems(OnExit(AppState::MainSettings), despawn_settings)
             .add_systems(
                 Update,
                 to_menu
