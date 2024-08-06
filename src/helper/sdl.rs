@@ -10,25 +10,30 @@
  * Unauthorized copying, modification, distribution, or use of this software, via any medium, is strictly prohibited.
  */
 
+#[cfg(feature = "rumble")]
 use std::sync::Mutex;
 
-use bevy::app::App;
-use bevy::prelude::{
-    Commands, Component, Entity, Plugin, Query, Res, ResMut, Resource, Time, Update,
-};
+use bevy::app::{App, Plugin};
+#[cfg(feature = "rumble")]
+use bevy::prelude::{Commands, Component, Entity, Query, Res, ResMut, Resource, Time, Update};
+#[cfg(feature = "rumble")]
 use bevy::time::{Timer, TimerMode};
+#[cfg(feature = "rumble")]
 use log::{error, info};
 
+#[cfg(feature = "rumble")]
 struct SdlWrapper {
     gamepad_subsystem: sdl2::GameControllerSubsystem,
 }
 
+#[cfg(feature = "rumble")]
 #[derive(Resource)]
 struct GlobalRumble {
     low_frequency: u16,
     high_frequency: u16,
 }
 
+#[cfg(feature = "rumble")]
 impl SdlWrapper {
     pub fn new() -> Result<Self, String> {
         sdl2::hint::set("SDL_JOYSTICK_THREAD", "1");
@@ -75,8 +80,10 @@ impl SdlWrapper {
     }
 }
 
+#[cfg(feature = "rumble")]
 static mut SDL_WRAPPER: Option<Mutex<SdlWrapper>> = None;
 
+#[cfg(feature = "rumble")]
 fn with_sdl<F>(f: F)
 where
     F: FnOnce(&SdlWrapper),
@@ -94,6 +101,7 @@ where
     }
 }
 
+#[cfg(feature = "rumble")]
 #[derive(Component)]
 pub struct Rumble {
     pub timer: Timer,
@@ -101,6 +109,7 @@ pub struct Rumble {
     pub high_frequency: u16,
 }
 
+#[cfg(feature = "rumble")]
 impl Rumble {
     pub fn new(low_frequency: u16, high_frequency: u16, duration: f32) -> Self {
         Self {
@@ -111,6 +120,7 @@ impl Rumble {
     }
 }
 
+#[cfg(feature = "rumble")]
 fn update_rumbles(
     mut commands: Commands,
     time: Res<Time>,
@@ -141,6 +151,10 @@ fn update_rumbles(
 pub struct SdlPlugin;
 
 impl Plugin for SdlPlugin {
+    #[cfg(not(feature = "rumble"))]
+    fn build(&self, _app: &mut App) {}
+
+    #[cfg(feature = "rumble")]
     fn build(&self, app: &mut App) {
         match SdlWrapper::new() {
             Ok(sdl_wrapper) => unsafe {

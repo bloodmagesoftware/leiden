@@ -12,7 +12,6 @@
 
 use bevy::prelude::*;
 
-use crate::helper::sdl::Rumble;
 use crate::helper::settings::{AudioChannel, UserSettings};
 use crate::helper::system::{ui_interact_just_pressed, ui_nav_back_just_pressed};
 use crate::helper::ui::{Fade, text_button, vertical_spacer};
@@ -244,7 +243,7 @@ fn button(
                 // Vibration
                 settings.vibration = !settings.vibration;
                 if settings.vibration {
-                    commands.spawn(Rumble::new(0xffff, 0xffff, 0.2));
+                    commands.spawn(crate::helper::sdl::Rumble::new(0xffff, 0xffff, 0.2));
                 }
             }
             _ => {}
