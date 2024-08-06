@@ -14,7 +14,7 @@ use bevy::prelude::{App, Plugin};
 
 mod cursor;
 mod ext;
-mod sdl;
+pub mod sdl;
 pub mod settings;
 pub mod system;
 pub mod ui;
@@ -24,6 +24,7 @@ pub struct HelperPlugin;
 impl Plugin for HelperPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(cursor::CursorPlugin)
+            .add_plugins(sdl::SdlPlugin)
             .add_plugins(settings::SettingsPlugin)
             .add_plugins(ui::UiPlugin);
     }
