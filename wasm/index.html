@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Leiden</title>
+    <link href="style.css" rel="stylesheet">
+    <link href="https://bloodmagesoftware.github.io/leiden/assets/textures/icon.png" rel="shortcut icon"
+          type="image/png">
+    <link href="https://bloodmagesoftware.github.io/leiden/assets/textures/icon.png" rel="icon" type="image/png">
+    <link href="https://bloodmagesoftware.github.io/leiden/assets/textures/icon.png" rel="apple-touch-icon"
+          type="image/png">
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta href="https://bloodmagesoftware.github.io/leiden" rel="canonical">
+    <meta name="darkreader-lock">
+    <meta content="Bevy" name="generator">
+    <meta content="Bloodmage Software :: Where the magic of gaming lives on" name="description">
+
+    <!-- Open Graph / Facebook -->
+    <meta content="Leiden" property="og:title">
+    <meta content="Bloodmage Software :: Where the magic of gaming lives on" property="og:description">
+    <meta content="https://bloodmagesoftware.github.io/leiden/assets/textures/preview.png" property="og:image">
+    <meta content="https://bloodmagesoftware.github.io/leiden" property="og:url">
+    <meta content="website" property="og:type">
+
+    <!-- Twitter -->
+    <meta content="summary_large_image" name="twitter:card">
+    <meta content="Leiden" name="twitter:title">
+    <meta content="Bloodmage Software :: Where the magic of gaming lives on" name="twitter:description">
+    <meta content="https://bloodmagesoftware.github.io/leiden/assets/textures/preview.png" name="twitter:image">
+    <meta content="https://bloodmagesoftware.github.io/leiden" name="twitter:url">
+</head>
+<body>
+<span
+        class="fullscreen"
+        onclick="document.querySelector('canvas').requestFullscreen()"
+>
+  <img
+          alt="Fullscreen"
+          height="32"
+          src="./arrows-fullscreen.svg"
+  >
+</span>
+<div id="pre-menu">
+    <h1>Leiden</h1>
+    <p>Web version</p>
+    <button id="play">Play</button>
+    <a href="https://bloodmagesoftware.dev/">Bloodmage Software</a>
+    <a href="https://github.com/bloodmagesoftware/leiden/">Source Code</a>
+    <a href="https://github.com/bloodmagesoftware/leiden/blob/main/LICENSE">License</a>
+</div>
+<script type="module">
+    import "./restart-audio-context.js";
+    import init from "./leiden.js";
+
+    function panic(message) {
+        console.error(message);
+        alert("panic\n"+message);
+        throw new Error(message);
+    }
+
+    function play() {
+        init().catch((error) => {
+            if (!error.message.startsWith("Using exceptions for control flow, don't mind me. This isn't actually an error!")) {
+                throw error;
+            }
+        });
+    }
+
+    const preMenu = document.getElementById("pre-menu") || panic("Pre-menu not found");
+    const playButton = document.getElementById("play") || panic("Play button not found");
+    playButton.addEventListener("click", () => {
+        play();
+        preMenu.remove();
+    });
+</script>
+</body>
+</html>
