@@ -14,6 +14,7 @@ use bevy::prelude::{App, Plugin};
 
 mod cursor;
 mod ext;
+mod sdl;
 pub mod settings;
 pub mod system;
 pub mod ui;

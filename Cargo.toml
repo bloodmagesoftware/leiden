@@ -22,6 +22,7 @@ dirs = "5.0.1"
 serde = "1.0.204"
 bevy_window = "0.14.1"
 log = "0.4.22"
+sdl3 = { version = "0.5.0", features = ["static-link", "bundled", "use-bindgen"] }
 
 [dev-dependencies]
 bevy = { version = "0.14.0", features = ["dynamic_linking", "bevy_dev_tools"] }
