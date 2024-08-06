@@ -24,6 +24,7 @@ Example: `cargo run --features feature1,feature2,feature3`
 | `dev`         | Skips some stuff for easier dev experience | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | `persistence` | Save and load game progress and settings   | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:                |
 | `exit`        | Add an exit button to the main menu        | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:                |
+| `rumble`      | Enable controller rumble (vibration)       | :heavy_check_mark: | :heavy_check_mark: | :x:                | :x:                |
 
 ## Credits
 
