@@ -193,14 +193,11 @@ fn despawn_settings(mut commands: Commands, query: Query<Entity, With<SettingsMa
 }
 
 fn button(
+    #[cfg(feature = "rumble")] mut commands: Commands,
     button_state: Res<State<ButtonFocusState>>,
     mut button_next_state: ResMut<NextState<ButtonFocusState>>,
     mut app_next_state: ResMut<NextState<AppState>>,
     mut settings: ResMut<UserSettings>,
-    #[cfg(feature = "rumble")] mut evw_rumble: EventWriter<
-        bevy::input::gamepad::GamepadRumbleRequest,
-    >,
-    #[cfg(feature = "rumble")] gamepads: Res<Gamepads>,
 ) {
     if let ButtonFocusState::Id(focus_id) = button_state.get() {
         match focus_id {
@@ -246,13 +243,7 @@ fn button(
                 // Vibration
                 settings.vibration = !settings.vibration;
                 if settings.vibration {
-                    for gamepad in gamepads.iter() {
-                        evw_rumble.send(bevy::input::gamepad::GamepadRumbleRequest::Add {
-                            gamepad,
-                            duration: std::time::Duration::from_millis(200),
-                            intensity: bevy::input::gamepad::GamepadRumbleIntensity::MAX,
-                        });
-                    }
+                    commands.spawn(crate::helper::sdl::Rumble::new(0xffff, 0xffff, 0.2));
                 }
             }
             _ => {}
