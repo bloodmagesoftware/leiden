@@ -10,9 +10,6 @@
  * Unauthorized copying, modification, distribution, or use of this software, via any medium, is strictly prohibited.
  */
 
-use bevy::input::gamepad::GamepadButtonChangedEvent;
-use bevy::input::keyboard::KeyboardInput;
-use bevy::input::mouse::MouseButtonInput;
 use bevy::prelude::*;
 
 use crate::state::AppState;
@@ -166,17 +163,6 @@ fn update_splash_opacity(
     background_color.0.set_alpha(opacity);
 }
 
-fn skip(
-    mut next_state: ResMut<NextState<AppState>>,
-    evr_keyboard: EventReader<KeyboardInput>,
-    evr_mouse: EventReader<MouseButtonInput>,
-    evr_gamepad: EventReader<GamepadButtonChangedEvent>,
-) {
-    if !evr_keyboard.is_empty() || !evr_mouse.is_empty() || !evr_gamepad.is_empty() {
-        next_state.set(AppState::Menu);
-    }
-}
-
 pub struct SplashPlugin;
 
 impl Plugin for SplashPlugin {
@@ -184,8 +170,7 @@ impl Plugin for SplashPlugin {
         app.add_systems(OnEnter(AppState::Splash), spawn_splash_ui)
             .add_systems(
                 Update,
-                (update_splash_content, update_splash_opacity, skip)
-                    .run_if(in_state(AppState::Splash)),
+                (update_splash_content, update_splash_opacity).run_if(in_state(AppState::Splash)),
             )
             .add_systems(OnExit(AppState::Splash), despawn_splash);
     }
