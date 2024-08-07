@@ -242,9 +242,7 @@ fn button(
             9 => {
                 // Vibration
                 settings.vibration = !settings.vibration;
-                if settings.vibration {
-                    commands.spawn(crate::helper::sdl::Rumble::new(0xffff, 0xffff, 0.2));
-                }
+                commands.spawn(crate::helper::sdl::Rumble::new(1.0, 1.0, 200));
             }
             _ => {}
         }
