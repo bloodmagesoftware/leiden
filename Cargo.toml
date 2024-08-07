@@ -8,7 +8,8 @@ license-file = "LICENSE"
 dev = []
 persistence = []
 exit = []
-rumble = ["sdl2"]
+rumble = []
+sdl = ["sdl2"]
 
 [dependencies]
 bevy = { version = "0.14.1", features = ["wav", "mp3"] }

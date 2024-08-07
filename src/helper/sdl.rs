@@ -10,30 +10,23 @@
  * Unauthorized copying, modification, distribution, or use of this software, via any medium, is strictly prohibited.
  */
 
-#[cfg(feature = "rumble")]
-use std::sync::Mutex;
+use bevy::prelude::*;
 
-use bevy::app::{App, Plugin};
-#[cfg(feature = "rumble")]
-use bevy::prelude::{Commands, Component, Entity, Query, Res, ResMut, Resource, Time, Update};
-#[cfg(feature = "rumble")]
-use bevy::time::{Timer, TimerMode};
-#[cfg(feature = "rumble")]
-use log::{error, info};
+use crate::helper::settings::UserSettings;
 
-#[cfg(feature = "rumble")]
+#[cfg(feature = "sdl")]
 struct SdlWrapper {
     gamepad_subsystem: sdl2::GameControllerSubsystem,
 }
 
-#[cfg(feature = "rumble")]
+#[cfg(feature = "sdl")]
 #[derive(Resource)]
 struct GlobalRumble {
     low_frequency: u16,
     high_frequency: u16,
 }
 
-#[cfg(feature = "rumble")]
+#[cfg(feature = "sdl")]
 impl SdlWrapper {
     pub fn new() -> Result<Self, String> {
         sdl2::hint::set("SDL_JOYSTICK_THREAD", "1");
@@ -80,10 +73,10 @@ impl SdlWrapper {
     }
 }
 
-#[cfg(feature = "rumble")]
-static mut SDL_WRAPPER: Option<Mutex<SdlWrapper>> = None;
+#[cfg(feature = "sdl")]
+static mut SDL_WRAPPER: Option<std::sync::Mutex<SdlWrapper>> = None;
 
-#[cfg(feature = "rumble")]
+#[cfg(feature = "sdl")]
 fn with_sdl<F>(f: F)
 where
     F: FnOnce(&SdlWrapper),
@@ -101,32 +94,61 @@ where
     }
 }
 
-#[cfg(feature = "rumble")]
+#[cfg(feature = "sdl")]
 #[derive(Component)]
 pub struct Rumble {
-    pub timer: Timer,
-    pub low_frequency: u16,
-    pub high_frequency: u16,
+    timer: Timer,
+    low_frequency: u16,
+    high_frequency: u16,
 }
 
-#[cfg(feature = "rumble")]
+#[cfg(not(feature = "sdl"))]
+#[derive(Component)]
+pub struct Rumble {
+    duration: std::time::Duration,
+    low_frequency: f32,
+    high_frequency: f32,
+}
+
+#[cfg(feature = "sdl")]
 impl Rumble {
-    pub fn new(low_frequency: u16, high_frequency: u16, duration: f32) -> Self {
+    pub fn new(low_frequency: f32, high_frequency: f32, duration_millis: u64) -> Self {
         Self {
-            timer: Timer::from_seconds(duration, TimerMode::Once),
+            timer: Timer::from_seconds(duration_millis as f32 / 1000.0, TimerMode::Once),
+            low_frequency: (low_frequency * 0xFFFF as f32) as u16,
+            high_frequency: (high_frequency * 0xFFFF as f32) as u16,
+        }
+    }
+}
+
+#[cfg(not(feature = "sdl"))]
+impl Rumble {
+    pub fn new(low_frequency: f32, high_frequency: f32, duration_millis: u64) -> Self {
+        Self {
+            duration: std::time::Duration::from_millis(duration_millis),
             low_frequency,
             high_frequency,
         }
     }
 }
 
-#[cfg(feature = "rumble")]
+#[cfg(feature = "sdl")]
 fn update_rumbles(
     mut commands: Commands,
     time: Res<Time>,
     mut rumbles: ResMut<GlobalRumble>,
     mut rumble_query: Query<(Entity, &mut Rumble)>,
+    user_settings: Res<UserSettings>,
 ) {
+    if !user_settings.vibration {
+        if rumbles.high_frequency != 0 || rumbles.low_frequency != 0 {
+            with_sdl(|sdl| sdl.set_rumble(0, 0, 1000));
+            rumbles.high_frequency = 0;
+            rumbles.low_frequency = 0;
+        }
+        return;
+    }
+
     let mut high_frequency = 0u16;
     let mut low_frequency = 0u16;
 
@@ -136,8 +158,12 @@ fn update_rumbles(
         if rumble.timer.just_finished() {
             commands.entity(e).despawn();
         } else {
-            low_frequency += rumble.low_frequency;
-            high_frequency += rumble.high_frequency;
+            if low_frequency < rumble.low_frequency {
+                low_frequency = rumble.low_frequency;
+            }
+            if high_frequency < rumble.high_frequency {
+                high_frequency = rumble.high_frequency;
+            }
         }
     }
 
@@ -148,25 +174,55 @@ fn update_rumbles(
     }
 }
 
+#[cfg(not(feature = "sdl"))]
+fn update_rumbles(
+    mut commands: Commands,
+    mut rumble_q: Query<(Entity, &mut Rumble)>,
+    gamepads: Res<Gamepads>,
+    mut evw_rumble: EventWriter<bevy::input::gamepad::GamepadRumbleRequest>,
+    user_settings: Res<UserSettings>,
+) {
+    if !user_settings.vibration {
+        for (e, _) in rumble_q.iter_mut() {
+            commands.entity(e).despawn();
+        }
+        return;
+    }
+
+    for (e, rumble) in rumble_q.iter_mut() {
+        for gamepad in gamepads.iter() {
+            evw_rumble.send(bevy::input::gamepad::GamepadRumbleRequest::Add {
+                gamepad,
+                duration: rumble.duration,
+                intensity: bevy::input::gamepad::GamepadRumbleIntensity {
+                    strong_motor: rumble.high_frequency,
+                    weak_motor: rumble.low_frequency,
+                },
+            });
+        }
+        commands.entity(e).despawn();
+    }
+}
+
 pub struct SdlPlugin;
 
 impl Plugin for SdlPlugin {
-    #[cfg(not(feature = "rumble"))]
-    fn build(&self, _app: &mut App) {}
-
-    #[cfg(feature = "rumble")]
     fn build(&self, app: &mut App) {
-        match SdlWrapper::new() {
-            Ok(sdl_wrapper) => unsafe {
-                SDL_WRAPPER = Some(Mutex::new(sdl_wrapper));
-                app.insert_resource(GlobalRumble {
-                    low_frequency: 0,
-                    high_frequency: 0,
-                })
-                .add_systems(Update, update_rumbles);
-            },
-            Err(err) => {
-                error!("Error initializing SDL: {}", err);
+        app.add_systems(Update, update_rumbles);
+
+        #[cfg(feature = "sdl")]
+        {
+            match SdlWrapper::new() {
+                Ok(sdl_wrapper) => unsafe {
+                    SDL_WRAPPER = Some(std::sync::Mutex::new(sdl_wrapper));
+                    app.insert_resource(GlobalRumble {
+                        low_frequency: 0,
+                        high_frequency: 0,
+                    });
+                },
+                Err(err) => {
+                    error!("Error initializing SDL: {}", err);
+                }
             }
         }
     }
