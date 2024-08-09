@@ -19,6 +19,7 @@ pub fn ui_interact_just_pressed() -> impl Condition<()> {
     IntoSystem::into_system(
         |button_state: Res<State<ButtonFocusState>>,
          mouse_buttons: Res<ButtonInput<MouseButton>>,
+         keyboard_buttons: Res<ButtonInput<KeyCode>>,
          gamepads: Res<Gamepads>,
          gamepad_buttons: Res<ButtonInput<GamepadButton>>| {
             if button_state.is_none() {
@@ -26,6 +27,10 @@ pub fn ui_interact_just_pressed() -> impl Condition<()> {
             }
 
             if mouse_buttons.just_pressed(MouseButton::Left) {
+                return true;
+            }
+
+            if keyboard_buttons.just_pressed(KeyCode::Enter) {
                 return true;
             }
 
