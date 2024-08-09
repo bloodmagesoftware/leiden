@@ -9,6 +9,9 @@
  *
  * Unauthorized copying, modification, distribution, or use of this software, via any medium, is strictly prohibited.
  */
+use bevy::input::gamepad::{GamepadConnection, GamepadEvent};
+use bevy::input::keyboard::KeyboardInput;
+use bevy::input::mouse::MouseButtonInput;
 use bevy::prelude::*;
 
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash)]
@@ -39,10 +42,45 @@ pub enum InputState {
     Gamepad,
 }
 
-fn update_input_state(mut next_state: ResMut<NextState<InputState>>, gamepads: Res<Gamepads>) {
+fn init_input_state(mut next_state: ResMut<NextState<InputState>>, gamepads: Res<Gamepads>) {
     if gamepads.iter().next().is_some() {
         next_state.set(InputState::Gamepad);
     } else {
+        next_state.set(InputState::MouseAndKeyboard);
+    }
+}
+
+fn set_input_state_gamepad(
+    mut next_state: ResMut<NextState<InputState>>,
+    mut evr_gamepad_input: EventReader<GamepadEvent>,
+) {
+    for ev in evr_gamepad_input.read() {
+        match ev {
+            GamepadEvent::Connection(ev) => match ev.connection {
+                GamepadConnection::Connected(_) => {
+                    next_state.set(InputState::Gamepad);
+                }
+                GamepadConnection::Disconnected => {
+                    next_state.set(InputState::MouseAndKeyboard);
+                }
+            },
+            _ => {
+                next_state.set(InputState::Gamepad);
+            }
+        }
+    }
+}
+
+fn set_input_state_mouse_and_keyboard(
+    mut next_state: ResMut<NextState<InputState>>,
+    mut evr_keyboard_input: EventReader<KeyboardInput>,
+    mut evr_mouse_input: EventReader<MouseButtonInput>,
+) {
+    for _ in evr_keyboard_input.read() {
+        next_state.set(InputState::MouseAndKeyboard);
+    }
+
+    for _ in evr_mouse_input.read() {
         next_state.set(InputState::MouseAndKeyboard);
     }
 }
@@ -89,7 +127,15 @@ impl Plugin for AppStatePlugin {
         app.insert_state(AppState::default());
 
         app.insert_state(InputState::default())
-            .add_systems(PreUpdate, update_input_state);
+            .add_systems(PostStartup, init_input_state)
+            .add_systems(
+                PreUpdate,
+                set_input_state_gamepad.run_if(in_state(InputState::MouseAndKeyboard)),
+            )
+            .add_systems(
+                PreUpdate,
+                set_input_state_mouse_and_keyboard.run_if(in_state(InputState::Gamepad)),
+            );
 
         app.insert_state(ButtonFocusState::default());
     }
