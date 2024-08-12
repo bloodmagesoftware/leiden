@@ -8,8 +8,8 @@
 
 ## Build from source
 
-- You need [Rust](https://rustup.rs/)
-- run `cargo run` or `cargo build`
+This is a regular [Rust](https://rust-lang.org/) project,
+no additional requirements.
 
 Some Features are platform dependent and are disabled by default.
 To enable them, use the `--features` flag,
@@ -29,7 +29,7 @@ Example: `cargo run --features feature1,feature2,feature3`
 
 ## Credits
 
-### Fonts
+### Font
 
 - [Ornatix Font by designstation](https://www.fontspace.com/ornatix-font-f8043) (Freeware)
 
