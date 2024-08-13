@@ -4,4 +4,5 @@
 mkdir -p wasm
 cargo build --release --target wasm32-unknown-unknown --features "dev"
 wasm-bindgen --no-typescript --out-name leiden --out-dir wasm --target web target/wasm32-unknown-unknown/release/leiden.wasm
+wasm-opt -Os --output wasm/leiden_bg.wasm wasm/leiden_bg.wasm
 cp -r assets wasm/

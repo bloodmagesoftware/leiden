@@ -22,7 +22,7 @@ wyrand = "0.2.1"
 dirs = "5.0.1"
 serde = "1.0.206"
 bevy_window = "0.14.1"
-log = "0.4.22"
+log = { version = "0.4.22", features = ["max_level_debug", "release_max_level_warn"] }
 sdl2 = { version = "0.37.0", features = ["static-link", "bundled", "use-bindgen"], optional = true }
 
 [dev-dependencies]
@@ -37,3 +37,10 @@ opt-level = 3
 
 [profile.release]
 opt-level = 3
+codegen-units = 1
+lto = "thin"
+
+[profile.wasm-release]
+inherits = "release"
+opt-level = "s"
+strip = "debuginfo"
