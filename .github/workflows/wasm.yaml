@@ -36,16 +36,16 @@ jobs:
       - name: install wasm-bindgen-cli
         run: cargo install wasm-bindgen-cli
       - name: Build
-        run: cargo build --profile wasm-release --target wasm32-unknown-unknown
-      - name: Prepare package
         run: |
+          cargo build --profile wasm-release --target wasm32-unknown-unknown
           wasm-bindgen --no-typescript --out-name ${{env.binary}} --out-dir wasm --target web target/wasm32-unknown-unknown/release/${{ env.binary }}.wasm
-          cp -r assets wasm/
       - name: Binaryen wasm-opt
         run: |
           sudo apt-get update
           sudo apt-get install binaryen
           wasm-opt -Oz wasm/${{env.binary}}_bg.wasm -o wasm/${{env.binary}}_bg.wasm
+      - name: Copy assets
+        run: cp -r assets wasm/
       - name: Upload binaries to artifacts
         uses: actions/upload-pages-artifact@v3.0.1
         with:
