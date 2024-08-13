@@ -10,11 +10,13 @@
  * Unauthorized copying, modification, distribution, or use of this software, via any medium, is strictly prohibited.
  */
 
-use std::hash::{Hash, Hasher};
-
+use crate::state::AppState;
 use bevy::audio::Volume;
 use bevy::prelude::*;
+use bevy_persistent::{Persistent, StorageFormat};
 use serde::{Deserialize, Serialize};
+use std::hash::{Hash, Hasher};
+use std::path::Path;
 
 #[derive(Resource, Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct UserSettings {
@@ -129,20 +131,18 @@ fn update_dynamic_audio(
     }
 }
 
-#[cfg(feature = "persistence")]
 fn apply_persistent_user_settings(
     mut user_settings: ResMut<UserSettings>,
-    persistent_user_settings: Res<bevy_persistent::Persistent<UserSettings>>,
+    persistent_user_settings: Res<Persistent<UserSettings>>,
 ) {
     {
         *user_settings = *persistent_user_settings.get();
     }
 }
 
-#[cfg(feature = "persistence")]
 fn persist_user_settings(
     user_settings: Res<UserSettings>,
-    mut persistent_user_settings: ResMut<bevy_persistent::Persistent<UserSettings>>,
+    mut persistent_user_settings: ResMut<Persistent<UserSettings>>,
 ) {
     persistent_user_settings
         .set(*user_settings)
@@ -155,38 +155,28 @@ impl Plugin for SettingsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, update_dynamic_audio);
 
-        #[cfg(feature = "persistence")]
-        {
-            if let Some(config_dir) = dirs::config_dir() {
-                let persistent_user_settings_resource =
-                    bevy_persistent::Persistent::<UserSettings>::builder()
-                        .name("user_settings")
-                        .format(bevy_persistent::StorageFormat::Bincode)
-                        .path(
-                            config_dir
-                                .join("bloodmagesoftware")
-                                .join("leiden")
-                                .join("user_settings"),
-                        )
-                        .default(UserSettings::default())
-                        .revertible(true)
-                        .revert_to_default_on_deserialization_errors(true)
-                        .build()
-                        .expect("failed to initialize user settings resource");
+        let config_dir = dirs::config_dir()
+            .map(|native_config_dir| {
+                native_config_dir
+                    .join("bloodmagesoftware")
+                    .join("leiden")
+                    .join("config")
+            })
+            .unwrap_or(Path::new("local").join("config"));
 
-                app.insert_resource(persistent_user_settings_resource)
-                    .insert_resource(UserSettings::default())
-                    .add_systems(PreStartup, apply_persistent_user_settings)
-                    .add_systems(
-                        OnExit(crate::state::AppState::MainSettings),
-                        persist_user_settings,
-                    );
-            }
-        }
+        let persistent_user_settings_resource = Persistent::<UserSettings>::builder()
+            .name("user_settings")
+            .format(StorageFormat::Bincode)
+            .path(config_dir.join("user_settings"))
+            .default(UserSettings::default())
+            .revertible(true)
+            .revert_to_default_on_deserialization_errors(true)
+            .build()
+            .expect("failed to initialize user settings resource");
 
-        #[cfg(not(feature = "persistence"))]
-        {
-            app.insert_resource(UserSettings::default());
-        }
+        app.insert_resource(persistent_user_settings_resource)
+            .insert_resource(UserSettings::default())
+            .add_systems(PreStartup, apply_persistent_user_settings)
+            .add_systems(OnExit(AppState::MainSettings), persist_user_settings);
     }
 }

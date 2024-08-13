@@ -6,7 +6,6 @@ license-file = "LICENSE"
 
 [features]
 dev = []
-persistence = []
 exit = []
 rumble = []
 sdl = ["sdl2"]
