@@ -93,14 +93,6 @@ pub enum ButtonFocusState {
 }
 
 impl ButtonFocusState {
-    pub fn set(&mut self, id: i8) {
-        *self = ButtonFocusState::Id(id);
-    }
-
-    pub fn clear(&mut self) {
-        *self = ButtonFocusState::None;
-    }
-
     pub fn is_id(&self, id: i8) -> bool {
         match self {
             ButtonFocusState::Id(focus_id) => *focus_id == id,
@@ -110,13 +102,6 @@ impl ButtonFocusState {
 
     pub fn is_none(&self) -> bool {
         matches!(self, ButtonFocusState::None)
-    }
-
-    pub fn get_id(&self) -> Option<i8> {
-        match self {
-            ButtonFocusState::Id(focus_id) => Some(*focus_id),
-            _ => None,
-        }
     }
 }
 
