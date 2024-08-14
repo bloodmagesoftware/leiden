@@ -1,6 +1,8 @@
 *
 !.gitignore
-!index.html
-!style.css
-!restart-audio-context.js
 !arrows-fullscreen.svg
+!cloud.svg
+!index.html
+!letters.svg
+!restart-audio-context.js
+!style.css

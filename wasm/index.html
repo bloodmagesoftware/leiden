@@ -31,8 +31,8 @@
 </head>
 <body>
 <span
-        class="fullscreen"
-        onclick="document.querySelector('canvas').requestFullscreen()"
+        id="fullscreen"
+        onclick="document.documentElement.requestFullscreen()"
 >
   <img
           alt="Fullscreen"
@@ -40,37 +40,138 @@
           src="./arrows-fullscreen.svg"
   >
 </span>
-<div id="pre-menu">
-    <h1>Leiden</h1>
-    <p>Web version</p>
-    <button id="play">Play</button>
-    <a href="https://bloodmagesoftware.dev/">Bloodmage Software</a>
-    <a href="https://github.com/bloodmagesoftware/leiden/">Source Code</a>
-    <a href="https://github.com/bloodmagesoftware/leiden/blob/main/LICENSE">License</a>
+<div id="launcher">
+    <div class="left">
+        <img alt="Leiden" id="logo" src="letters.svg">
+        <p class="warn" id="size-warn">Your screen size is too small for this game. It is made for desktops.</p>
+        <p class="warn" id="touch-warn">
+            This game is not optimized for touch devices. You can play if you have a gamepad connected.
+        </p>
+        <p class="warn" id="gpu-warn">It seems your GPU does not support WebGL2 which is required to play this game.</p>
+        <p id="tags">
+            <a href="https://bloodmagesoftware.dev/">Bloodmage Software</a>
+            <a href="https://github.com/bloodmagesoftware/leiden/">Open Source</a>
+            <a href="https://github.com/bloodmagesoftware/leiden/blob/main/LICENSE">License</a>
+        </p>
+        <button id="play"><img alt="" src="cloud.svg">Play</button>
+    </div>
+    <div class="right">
+        <p>This game contains:</p>
+        <ul>
+            <li>Violence</li>
+            <li>Strong Language</li>
+        </ul>
+    </div>
+    <div class="bottom">
+        <p>
+            Experience the city Leiden in this dark medieval fantasy adventure.
+        </p>
+    </div>
 </div>
 <script type="module">
     import "./restart-audio-context.js";
-    import init from "./leiden.js";
+    import {__wbg_get_imports, __wbg_init_memory, __wbg_load, __wbg_finalize_init} from "./leiden.js";
 
     function panic(message) {
         console.error(message);
-        alert("panic\n"+message);
+        alert("panic\n" + message);
         throw new Error(message);
     }
 
-    function play() {
-        init().catch((error) => {
+    async function init() {
+        const wasmUrl = new URL('leiden_bg.wasm', import.meta.url);
+
+        const imports = __wbg_get_imports();
+
+        const resp = await fetch(wasmUrl.href);
+
+        __wbg_init_memory(imports);
+
+        const {instance, module} = await __wbg_load(resp, imports);
+
+        return () => {
+            return __wbg_finalize_init(instance, module);
+        };
+    }
+
+    const launcher = document.getElementById("launcher") || panic("Launcher not found");
+    const playButton = document.getElementById("play") || panic("Play button not found");
+
+
+    const start = init().catch((error) => {
+        if (!error.message.startsWith("Using exceptions for control flow, don't mind me. This isn't actually an error!")) {
+            throw error;
+        }
+    });
+
+    async function play() {
+        try {
+            await Promise.all([
+                document.documentElement.requestFullscreen(),
+                new Promise((resolve) => {
+                    document.addEventListener("fullscreenchange", resolve, {once: true});
+                }),
+            ]);
+        } catch (error) {
+            console.error("Failed to request fullscreen", error);
+        }
+
+        try {
+            const f = (await start)();
+            f();
+        } catch (error) {
             if (!error.message.startsWith("Using exceptions for control flow, don't mind me. This isn't actually an error!")) {
                 throw error;
             }
-        });
+        }
     }
 
-    const preMenu = document.getElementById("pre-menu") || panic("Pre-menu not found");
-    const playButton = document.getElementById("play") || panic("Play button not found");
     playButton.addEventListener("click", () => {
         play();
-        preMenu.remove();
+        launcher.remove();
+        document.documentElement.style.overflow = "hidden";
+    });
+</script>
+<script defer>
+    function isGPUAvailable() {
+        const canvas = document.createElement('canvas');
+        let gl;
+        let gpuAvailable = false;
+
+        try {
+            gl = canvas.getContext('webgl2') || canvas.getContext('experimental-webgl2');
+        } catch (e) {
+            return false;
+        }
+
+        if (gl) {
+            const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+            if (debugInfo) {
+                const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                gpuAvailable = !(renderer.indexOf('SwiftShader') >= 0 ||
+                    renderer.indexOf('Software') >= 0 ||
+                    renderer.indexOf('Apple GPU') >= 0);
+            }
+        }
+
+        return gpuAvailable;
+    }
+
+    const gpuWarn = document.getElementById("gpu-warn");
+    if (isGPUAvailable()) {
+        gpuWarn.style.display = "none";
+    } else {
+        gpuWarn.style.display = "block";
+    }
+</script>
+<script defer>
+    const fullscreen = document.getElementById("fullscreen");
+    document.addEventListener("fullscreenchange", () => {
+        if (document.fullscreenElement) {
+            fullscreen.style.display = "none";
+        } else {
+            fullscreen.style.display = "block";
+        }
     });
 </script>
 </body>

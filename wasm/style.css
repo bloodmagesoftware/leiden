@@ -1,18 +1,7 @@
-@font-face {
-    font-family: 'Ornatix';
-    src: url(./assets/fonts/Ornatix.ttf);
-}
-
-h1 {
-    font-family: 'Ornatix', serif;
-    font-size: min(8rem, 12vmin);
-    color: #fff;
-}
-
 :root, body {
     margin: 0;
     padding: 0;
-    overflow: hidden;
+    overflow-x: hidden;
     background-color: #000;
     color-scheme: dark;
 }
@@ -28,7 +17,7 @@ canvas {
     outline: none;
 }
 
-.fullscreen {
+#fullscreen {
     cursor: pointer;
     background-color: #fff4;
     backdrop-filter: blur(4px);
@@ -42,37 +31,117 @@ canvas {
     height: 48px;
 }
 
-.fullscreen:hover {
+#fullscreen:hover {
     background-color: #fff8;
 }
 
 * {
-    user-select: none;
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-#pre-menu {
-    z-index: 10;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+#launcher {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+    "left right"
+    "bottom bottom";
+    align-items: baseline;
+    z-index: 100;
     gap: 4vmin;
-    position: fixed;
-    top: 0;
-    left: 0;
+    padding: 4vmin;
     width: 100vw;
-    height: 100vh;
+    min-height: 100svh;
     background-color: #000;
     color: #fff;
-    overflow: hidden;
-
-    cursor: url(./assets/textures/ui/cursor.png), auto;
 }
 
-#pre-menu > p, #pre-menu > button, #pre-menu > a {
+@media (max-width: 800px) {
+    #launcher {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+        grid-template-areas:
+        "left"
+        "right"
+        "bottom";
+    }
+}
+
+@media (hover: none) {
+    #launcher #touch-warn {
+        display: block;
+    }
+}
+
+@media (hover: hover) {
+    #launcher #touch-warn {
+        display: none;
+    }
+}
+
+@media (max-width: 800px) or (max-height: 600px) {
+    #launcher #size-warn {
+        display: block;
+    }
+}
+
+@media (min-width: 800px) and (min-height: 800px) {
+    #launcher #size-warn {
+        display: none;
+    }
+}
+
+#launcher .warn {
+    color: #f9e2af;
+}
+
+#launcher p {
+    text-wrap: pretty;
+    margin: 1rem 0;
+}
+
+#launcher #tags {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#launcher #tags > * {
+    color: lightslategray;
+}
+
+#launcher #tags > a:hover {
+    color: whitesmoke;
+    text-decoration: underline;
+}
+
+#launcher #tags > *:not(:last-child)::after {
+    content: "";
+    display: inline-block;
+    background-color: slategray;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    margin: 0.1rem 0.5rem;
+    pointer-events: none;
+}
+
+.left {
+    grid-area: left;
+    padding-top: 10rem;
+}
+
+.right {
+    grid-area: right;
+}
+
+.bottom {
+    grid-area: bottom;
+}
+
+#launcher * {
     font-family: sans-serif;
     color: white;
     background: none;
@@ -82,11 +151,34 @@ canvas {
     text-decoration: none;
 }
 
-#pre-menu > button, #pre-menu > a {
-    cursor: url(./assets/textures/ui/cursor.png), pointer;
-    font-size: 2rem;
+#launcher #logo {
+    display: block;
+    width: 16rem;
+    height: auto;
 }
 
-#pre-menu > button:hover, #pre-menu > a:hover {
-    color: #cba6f7;
+#launcher button, #launcher a {
+    cursor: pointer;
+}
+
+#launcher button {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    background-color: darkslategray;
+    color: white;
+    transition: opacity 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    gap: 0.5rem;
+}
+
+#launcher button:hover {
+    opacity: 0.8;
+}
+
+#launcher ul {
+    list-style: circle;
+    padding-left: 1rem;
 }

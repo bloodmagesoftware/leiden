@@ -2,12 +2,8 @@ name: Wasm
 
 on:
   push:
-    paths:
-      - "src/**"
-      - "Cargo.toml"
-      - ".github/workflows/wasm.yaml"
-    branches:
-      - main
+    tags:
+      - "*"
   workflow_dispatch:
 
 permissions:
@@ -34,11 +30,14 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
       - name: install wasm-bindgen-cli
-        run: cargo install wasm-bindgen-cli
+        run: |
+          cargo update -p wasm-bindgen
+          cargo install wasm-bindgen-cli
       - name: Build
         run: |
           cargo build --profile wasm-release --target wasm32-unknown-unknown
           wasm-bindgen --no-typescript --out-name ${{env.binary}} --out-dir wasm --target web target/wasm32-unknown-unknown/wasm-release/${{ env.binary }}.wasm
+          echo 'export { __wbg_get_imports, __wbg_init_memory, __wbg_load, __wbg_finalize_init };' >> wasm/leiden.js
       - name: Binaryen wasm-opt
         run: |
           sudo apt-get update
