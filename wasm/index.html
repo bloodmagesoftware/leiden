@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <title>Leiden</title>
+    <meta content="#000000" name="theme-color">
     <link href="style.css" rel="stylesheet">
     <link href="https://bloodmagesoftware.github.io/leiden/assets/textures/icon.png" rel="shortcut icon"
           type="image/png">
@@ -47,7 +48,13 @@
         <p class="warn" id="touch-warn">
             This game is not optimized for touch devices. You can play if you have a gamepad connected.
         </p>
-        <p class="warn" id="gpu-warn">It seems your GPU does not support WebGL2 which is required to play this game.</p>
+        <p class="warn" id="gpu-warn">
+            It looks like your Browser does not support WebGL which is required to play this game.
+        </p>
+        <p class="warn" id="safari-warn">
+            This game relies on web standards that are not fully supported by Safari at this time.<br>
+            We hope to support Safari in the future as its web standards support improves.
+        </p>
         <p id="tags">
             <a href="https://bloodmagesoftware.dev/">Bloodmage Software</a>
             <a href="https://github.com/bloodmagesoftware/leiden/">Open Source</a>
@@ -128,33 +135,60 @@
 
     playButton.addEventListener("click", () => {
         play();
-        launcher.remove();
+        launcher.style.visibility = "collapse";
         document.documentElement.style.overflow = "hidden";
     });
+</script>
+<script>
+    window.addEventListener("error", (ev) => {
+        if (!ev.filename.startsWith(window.location.origin)) return;
+        const fileUrl = new URL(ev.filename);
+        if (fileUrl.pathname.length < 2) return;
+        alert(`An error occurred. Maybe try to reload the page, try another browser or check the browser console for more information.
+
+${ev.message}
+${ev.filename}:${ev.lineno}:${ev.colno}
+`);
+        document.getElementById("launcher").style.visibility = "visible";
+        document.documentElement.style.overflow = "unset";
+        document.getElementById("play").disabled = true;
+    });
+</script>
+<script defer>
+    function isSafari() {
+        const ua = navigator.userAgent.toLowerCase();
+
+        // Check for Safari or iOS
+        if (/safari/.test(ua) || /iphone|ipad|ipod/.test(ua)) {
+            // Exclude Chrome, as it also includes "Safari" in its UA
+            if (!/chrome|crios|chromium/.test(ua)) {
+                return true;
+            }
+        }
+
+        // Feature detection for Safari-specific API
+        return typeof window.safari === 'object';
+    }
+
+    const safariWarn = document.getElementById("safari-warn");
+    if (isSafari()) {
+        safariWarn.style.display = "block";
+    } else {
+        safariWarn.style.display = "none";
+    }
 </script>
 <script defer>
     function isGPUAvailable() {
         const canvas = document.createElement('canvas');
         let gl;
-        let gpuAvailable = false;
 
         try {
-            gl = canvas.getContext('webgl2') || canvas.getContext('experimental-webgl2');
+            gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
         } catch (e) {
             return false;
         }
 
-        if (gl) {
-            const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-            if (debugInfo) {
-                const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-                gpuAvailable = !(renderer.indexOf('SwiftShader') >= 0 ||
-                    renderer.indexOf('Software') >= 0 ||
-                    renderer.indexOf('Apple GPU') >= 0);
-            }
-        }
-
-        return gpuAvailable;
+        return !!gl;
     }
 
     const gpuWarn = document.getElementById("gpu-warn");

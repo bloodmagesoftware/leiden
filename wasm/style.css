@@ -101,6 +101,7 @@ canvas {
 #launcher p {
     text-wrap: pretty;
     margin: 1rem 0;
+    line-height: 1.5;
 }
 
 #launcher #tags {
@@ -172,6 +173,12 @@ canvas {
     justify-content: center;
     flex-direction: row;
     gap: 0.5rem;
+}
+
+#launcher button[disabled], #launcher button:disabled {
+    background-color: slategray !important;
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
 }
 
 #launcher button:hover {
