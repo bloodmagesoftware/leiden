@@ -4,17 +4,16 @@
  *
  * This file is part of Leiden.
  *
- * Leiden is licensed under the terms of the custom license available at:
- * https://github.com/bloodmagesoftware/leiden/blob/main/LICENSE
- *
- * Unauthorized copying, modification, distribution, or use of this software, via any medium, is strictly prohibited.
+ * Fair Core License, Version 1.0, Apache 2.0 Future License
+ * https://github.com/bloodmagesoftware/leiden/blob/main/LICENSE.md
  */
+
 use bevy::audio::PlaybackMode;
 use bevy::prelude::*;
 
 use crate::helper::settings::{AudioChannel, DynamicAudio, DynamicAudioBundle};
 use crate::helper::system::ui_interact_just_pressed;
-use crate::helper::ui::{Fade, text_button, vertical_spacer};
+use crate::helper::ui::{text_button, vertical_spacer, Fade};
 use crate::state::{AppState, ButtonFocusState};
 
 #[derive(Component)]

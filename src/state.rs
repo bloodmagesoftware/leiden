@@ -4,11 +4,10 @@
  *
  * This file is part of Leiden.
  *
- * Leiden is licensed under the terms of the custom license available at:
- * https://github.com/bloodmagesoftware/leiden/blob/main/LICENSE
- *
- * Unauthorized copying, modification, distribution, or use of this software, via any medium, is strictly prohibited.
+ * Fair Core License, Version 1.0, Apache 2.0 Future License
+ * https://github.com/bloodmagesoftware/leiden/blob/main/LICENSE.md
  */
+
 use bevy::input::gamepad::{GamepadConnection, GamepadEvent};
 use bevy::input::keyboard::KeyboardInput;
 use bevy::input::mouse::MouseButtonInput;

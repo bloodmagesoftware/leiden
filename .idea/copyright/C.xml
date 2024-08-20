@@ -1,6 +1,6 @@
 <component name="CopyrightManager">
   <copyright>
-    <option name="notice" value="Leiden - A video game&#10;Copyright (C) &amp;#36;originalComment.match(&quot;Copyright \(c\) (\d+)&quot;, 1, &quot;-&quot;, &quot;&amp;#36;today.year&quot;)&amp;#36;today.year  Frank Mayer&#10;&#10;This file is part of Leiden.&#10;&#10;Leiden is licensed under the terms of the custom license available at:&#10;https://github.com/bloodmagesoftware/leiden/blob/main/LICENSE&#10;&#10;Unauthorized copying, modification, distribution, or use of this software, via any medium, is strictly prohibited." />
+    <option name="notice" value="Leiden - A video game&#10;Copyright (C) &amp;#36;originalComment.match(&quot;Copyright \(c\) (\d+)&quot;, 1, &quot;-&quot;, &quot;&amp;#36;today.year&quot;)&amp;#36;today.year  Frank Mayer&#10;&#10;This file is part of Leiden.&#10;&#10;Fair Core License, Version 1.0, Apache 2.0 Future License&#10;https://github.com/bloodmagesoftware/leiden/blob/main/LICENSE.md" />
     <option name="myName" value="C" />
   </copyright>
 </component>
