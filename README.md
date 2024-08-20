@@ -1,5 +1,7 @@
 # Leiden
 
+Fair Core License, Version 1.0, Apache 2.0 Future License
+
 ## Play
 
 - [In your browser](https://bloodmagesoftware.github.io/leiden/) Due to permission restrictions, the web version offers

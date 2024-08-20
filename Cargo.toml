@@ -2,7 +2,7 @@
 name = "leiden"
 version = "0.0.0"
 edition = "2021"
-license-file = "LICENSE"
+license-file = "LICENSE.md"
 
 [features]
 dev = []

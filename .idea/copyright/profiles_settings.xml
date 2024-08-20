@@ -3,5 +3,8 @@
     <module2copyright>
       <element module="Local Rust Files" copyright="C" />
     </module2copyright>
+    <LanguageOptions name="Rust">
+      <option name="fileTypeOverride" value="3" />
+    </LanguageOptions>
   </settings>
 </component>

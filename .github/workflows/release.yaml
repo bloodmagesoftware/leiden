@@ -46,7 +46,7 @@ jobs:
           mkdir linux
           cp target/x86_64-unknown-linux-gnu/release/${{ env.binary }} linux/
           cp -r assets linux/
-          cp LICENSE linux/
+          cp LICENSE.md linux/
           cp README.md linux/
 
       - name: Package as a zip
@@ -95,7 +95,7 @@ jobs:
           cp target/x86_64-pc-windows-msvc/release/${{ env.binary }}.exe windows/
           mkdir assets -ea 0 # create the assets directory if it does not exist, it will get ignored in the zip if empty
           cp -r assets windows/
-          cp LICENSE windows/
+          cp LICENSE.md windows/
           cp README.md windows/
 
       - name: Package as a zip
@@ -146,7 +146,7 @@ jobs:
           mkdir -p dist/${{ env.binary }}.app/Contents/MacOS
           cp target/x86_64-apple-darwin/release/${{ env.binary }} dist/${{ env.binary }}.app/Contents/MacOS/
           cp -r assets dist/${{ env.binary }}.app/Contents/MacOS/
-          cp LICENSE dist/${{ env.binary }}.app/Contents/MacOS/
+          cp LICENSE.md dist/${{ env.binary }}.app/Contents/MacOS/
           cp README.md dist/${{ env.binary }}.app/Contents/MacOS/
           ln -s /Applications dist/Applications
           hdiutil create -fs HFS+ -volname "${{ env.binary }}" -srcfolder dist -format UDRO ${{ env.binary }}-macOS-intel.dmg
@@ -195,7 +195,7 @@ jobs:
           mkdir -p dist/${{ env.binary }}.app/Contents/MacOS
           cp target/aarch64-apple-darwin/release/${{ env.binary }} dist/${{ env.binary }}.app/Contents/MacOS/
           cp -r assets dist/${{ env.binary }}.app/Contents/MacOS/
-          cp LICENSE dist/${{ env.binary }}.app/Contents/MacOS/
+          cp LICENSE.md dist/${{ env.binary }}.app/Contents/MacOS/
           cp README.md dist/${{ env.binary }}.app/Contents/MacOS/
           ln -s /Applications dist/Applications
           hdiutil create -fs HFS+ -volname "${{ env.binary }}-macOS-apple-silicon" -srcfolder dist -format UDRO ${{ env.binary }}-macOS-apple-silicon.dmg
