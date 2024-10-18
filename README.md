@@ -28,7 +28,7 @@ Example: `cargo run --features feature1,feature2,feature3`
 | `rumble` | Enable gamepad rumble (vibration)          | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:                |
 | `sdl`    | Use SDL2 instead of default Bevy rumble    | :x:                | :x:                | :heavy_check_mark: | :x:                |
 
-## Credits
+## Attribution
 
 ### Font
 
